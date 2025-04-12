@@ -10,12 +10,14 @@ import CoreData
 
 struct PracticeSessionView: View {
     let practiceType: PracticeType
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.presentationMode) private var presentationMode
     @Environment(\.managedObjectContext) private var viewContext
 
     @State private var startTime = Date()
     @State private var elapsedTime: TimeInterval = 0
     @State private var timer: Timer? = nil
+    @State private var note: String = ""
+    @State private var sessionSaved: Bool = false
 
     var body: some View {
         VStack(spacing: 20) {
@@ -27,10 +29,20 @@ struct PracticeSessionView: View {
                 .font(.system(size: 48, weight: .bold, design: .monospaced))
                 .padding()
 
-            Button("Stop Practice") {
-                // Сохраняем время ДО остановки таймера
-                elapsedTime = Date().timeIntervalSince(startTime)
+            Text("💬 Comment (optional):")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+                .padding(.top)
 
+            TextEditor(text: $note)
+                .frame(height: 100)
+                .padding(4)
+                .background(Color.gray.opacity(0.1))
+                .cornerRadius(8)
+                .padding(.horizontal)
+
+            Button("Stop Practice") {
+                elapsedTime = Date().timeIntervalSince(startTime)
                 timer?.invalidate()
                 timer = nil
 
@@ -39,28 +51,31 @@ struct PracticeSessionView: View {
                 newSession.type = practiceType.rawValue
                 newSession.duration = elapsedTime
                 newSession.date = Date()
+                newSession.note = note
 
                 do {
                     try viewContext.save()
-                    print("✅ Practice session saved with \(elapsedTime) seconds")
+                    print("✅ Practice session saved.")
+                    sessionSaved = true
                 } catch {
                     print("⚠️ Failed to save session: \(error.localizedDescription)")
                 }
-
-                print("🟢 Saved session:")
-                print("⏱ Duration: \(elapsedTime)")
-                print("📅 Date: \(Date())")
-                print("🎯 Type: \(practiceType.rawValue)")
-                
-                dismiss()
             }
-
             .font(.headline)
             .frame(maxWidth: .infinity)
             .padding()
             .background(Color.red)
             .foregroundColor(.white)
             .cornerRadius(10)
+
+            if sessionSaved {
+                Button("← Back") {
+                    presentationMode.wrappedValue.dismiss()
+                }
+                .font(.subheadline)
+                .foregroundColor(.blue)
+                .padding(.top, 8)
+            }
 
             Spacer()
         }
@@ -70,6 +85,7 @@ struct PracticeSessionView: View {
             timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
                 elapsedTime = Date().timeIntervalSince(startTime)
             }
+            RunLoop.main.add(timer!, forMode: .common)
         }
         .onDisappear {
             timer?.invalidate()

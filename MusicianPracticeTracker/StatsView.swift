@@ -15,11 +15,18 @@ struct StatsView: View {
     )
     private var sessions: FetchedResults<PracticeSession>
 
+    var totalTime: TimeInterval {
+        sessions.reduce(0) { $0 + ($1.duration) }
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("⏱ Total Practice Time: \(formattedDuration(totalDuration))")
-                .font(.headline)
-                .padding(.horizontal)
+            Text("Practice Stats")
+                .font(.largeTitle)
+                .bold()
+
+            Text("⏱ Total Practice Time: \(formattedDuration(totalTime))")
+                .font(.title3)
 
             List {
                 ForEach(sessions) { session in
@@ -33,27 +40,29 @@ struct StatsView: View {
                         Text("📅 \(formattedDate(session.date))")
                             .font(.caption)
                             .foregroundColor(.secondary)
+
+                        if let note = session.note, !note.isEmpty {
+                            Text("💬 \(note)")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                        }
                     }
                     .padding(.vertical, 4)
                 }
             }
         }
-        .navigationTitle("Practice Stats")
+        .padding()
     }
 
-    // Сумма всех длительностей
-    var totalDuration: Double {
-        sessions.reduce(0) { $0 + $1.duration }
-    }
-
-    func formattedDuration(_ duration: Double) -> String {
+    // Formatters
+    private func formattedDuration(_ duration: TimeInterval) -> String {
         let minutes = Int(duration) / 60
         let seconds = Int(duration) % 60
         return String(format: "%02d:%02d", minutes, seconds)
     }
 
-    func formattedDate(_ date: Date?) -> String {
-        guard let date = date else { return "No date" }
+    private func formattedDate(_ date: Date?) -> String {
+        guard let date = date else { return "N/A" }
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
         formatter.timeStyle = .short
