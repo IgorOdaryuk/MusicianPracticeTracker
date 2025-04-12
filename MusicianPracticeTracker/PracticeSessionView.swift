@@ -6,10 +6,12 @@
 //
 
 import SwiftUI
+import CoreData
 
 struct PracticeSessionView: View {
     let practiceType: PracticeType
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.managedObjectContext) private var viewContext
 
     @State private var startTime = Date()
     @State private var elapsedTime: TimeInterval = 0
@@ -26,8 +28,25 @@ struct PracticeSessionView: View {
                 .padding()
 
             Button("Stop Practice") {
+                // Останавливаем таймер
                 timer?.invalidate()
                 timer = nil
+
+                // Сохраняем в CoreData
+                let newSession = PracticeSession(context: viewContext)
+                newSession.id = UUID()
+                newSession.type = practiceType.rawValue
+                newSession.duration = elapsedTime
+                newSession.date = Date()
+
+                do {
+                    try viewContext.save()
+                    print("✅ Practice session saved.")
+                } catch {
+                    print("⚠️ Failed to save session: \(error.localizedDescription)")
+                }
+
+                // Закрываем экран
                 dismiss()
             }
             .font(.headline)
