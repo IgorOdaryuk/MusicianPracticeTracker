@@ -20,8 +20,6 @@ struct ContentView: View {
                 .padding()
 
                 // Using deprecated NavigationLink with isActive for compatibility with iOS versions prior to 16.
-                // NavigationStack and .navigationDestination are iOS 16+, which would limit backward compatibility.
-
                 NavigationLink(
                     destination: PracticeSessionView(practiceType: selectedType),
                     isActive: $isPracticing
@@ -35,6 +33,17 @@ struct ContentView: View {
                     .background(Color.blue)
                     .foregroundColor(.white)
                     .cornerRadius(10)
+                }
+                .padding(.horizontal)
+
+                // 👇 ДОБАВИЛИ: Переход на статистику
+                NavigationLink(destination: StatsView()) {
+                    Text("📈 View Stats")
+                        .font(.subheadline)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(Color.gray.opacity(0.2))
+                        .cornerRadius(8)
                 }
                 .padding(.horizontal)
 
