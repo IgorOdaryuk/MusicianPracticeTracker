@@ -9,6 +9,8 @@ import SwiftUI
 import CoreData
 
 struct StatsView: View {
+    @Environment(\.managedObjectContext) private var viewContext
+
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \PracticeSession.date, ascending: false)],
         animation: .default
@@ -27,6 +29,21 @@ struct StatsView: View {
 
             Text("⏱ Total Practice Time: \(formattedDuration(totalTime))")
                 .font(.title3)
+
+            Button("🗑 Clear All Sessions") {
+                for session in sessions {
+                    viewContext.delete(session)
+                }
+                do {
+                    try viewContext.save()
+                    print("✅ All sessions deleted")
+                } catch {
+                    print("⚠️ Failed to delete sessions: \(error.localizedDescription)")
+                }
+            }
+            .font(.caption)
+            .foregroundColor(.red)
+            .padding(.bottom, 10)
 
             List {
                 ForEach(sessions) { session in
@@ -54,7 +71,8 @@ struct StatsView: View {
         .padding()
     }
 
-    // Formatters
+    // MARK: - Formatters
+
     private func formattedDuration(_ duration: TimeInterval) -> String {
         let minutes = Int(duration) / 60
         let seconds = Int(duration) % 60
