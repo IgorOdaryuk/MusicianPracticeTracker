@@ -21,7 +21,7 @@ struct PracticeSessionView: View {
                 .font(.title)
                 .padding(.top)
 
-            Text("\(formattedTime)")
+            Text(formattedTime)
                 .font(.system(size: 48, weight: .bold, design: .monospaced))
                 .padding()
 
@@ -57,4 +57,3 @@ struct PracticeSessionView: View {
         return String(format: "%02d:%02d", minutes, seconds)
     }
 }
-
