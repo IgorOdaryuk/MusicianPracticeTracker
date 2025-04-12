@@ -28,11 +28,12 @@ struct PracticeSessionView: View {
                 .padding()
 
             Button("Stop Practice") {
-                // Останавливаем таймер
+                // Сохраняем время ДО остановки таймера
+                elapsedTime = Date().timeIntervalSince(startTime)
+
                 timer?.invalidate()
                 timer = nil
 
-                // Сохраняем в CoreData
                 let newSession = PracticeSession(context: viewContext)
                 newSession.id = UUID()
                 newSession.type = practiceType.rawValue
@@ -41,14 +42,19 @@ struct PracticeSessionView: View {
 
                 do {
                     try viewContext.save()
-                    print("✅ Practice session saved.")
+                    print("✅ Practice session saved with \(elapsedTime) seconds")
                 } catch {
                     print("⚠️ Failed to save session: \(error.localizedDescription)")
                 }
 
-                // Закрываем экран
+                print("🟢 Saved session:")
+                print("⏱ Duration: \(elapsedTime)")
+                print("📅 Date: \(Date())")
+                print("🎯 Type: \(practiceType.rawValue)")
+                
                 dismiss()
             }
+
             .font(.headline)
             .frame(maxWidth: .infinity)
             .padding()

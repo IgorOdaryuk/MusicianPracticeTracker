@@ -16,23 +16,34 @@ struct StatsView: View {
     private var sessions: FetchedResults<PracticeSession>
 
     var body: some View {
-        List {
-            ForEach(sessions) { session in
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(session.type ?? "Unknown")
-                        .font(.headline)
+        VStack(alignment: .leading, spacing: 16) {
+            Text("⏱ Total Practice Time: \(formattedDuration(totalDuration))")
+                .font(.headline)
+                .padding(.horizontal)
 
-                    Text("⏱ \(formattedDuration(session.duration))")
-                        .font(.subheadline)
+            List {
+                ForEach(sessions) { session in
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(session.type ?? "Unknown")
+                            .font(.headline)
 
-                    Text("📅 \(formattedDate(session.date))")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                        Text("⏱ \(formattedDuration(session.duration))")
+                            .font(.subheadline)
+
+                        Text("📅 \(formattedDate(session.date))")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.vertical, 4)
                 }
-                .padding(.vertical, 4)
             }
         }
         .navigationTitle("Practice Stats")
+    }
+
+    // Сумма всех длительностей
+    var totalDuration: Double {
+        sessions.reduce(0) { $0 + $1.duration }
     }
 
     func formattedDuration(_ duration: Double) -> String {
@@ -49,4 +60,3 @@ struct StatsView: View {
         return formatter.string(from: date)
     }
 }
-
