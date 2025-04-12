@@ -1,14 +1,8 @@
-//
-//  ContentView.swift
-//  MusicianPracticeTracker
-//
-//  Created by Igor Odaryuk on 12.04.2025.
-//
-
 import SwiftUI
 
 struct ContentView: View {
     @State private var selectedType: PracticeType = .scales
+    @State private var isPracticing = false
 
     var body: some View {
         NavigationView {
@@ -25,16 +19,22 @@ struct ContentView: View {
                 .pickerStyle(.wheel)
                 .padding()
 
-                Button(action: {
-                    print("Start practice for \(selectedType.rawValue)")
-                }) {
-                    Text("Start Practice")
-                        .font(.headline)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
+                // Using deprecated NavigationLink with isActive for compatibility with iOS versions prior to 16.
+                // NavigationStack and .navigationDestination are iOS 16+, which would limit backward compatibility.
+
+                NavigationLink(
+                    destination: PracticeSessionView(practiceType: selectedType),
+                    isActive: $isPracticing
+                ) {
+                    Button("Start Practice") {
+                        isPracticing = true
+                    }
+                    .font(.headline)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(10)
                 }
                 .padding(.horizontal)
 
@@ -45,7 +45,6 @@ struct ContentView: View {
         }
     }
 }
-
 
 #Preview {
     ContentView()
